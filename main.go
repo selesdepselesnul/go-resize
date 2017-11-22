@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"github.com/urfave/cli"
 	"fmt"
+	"strconv"
 )
 
-func resizeImg(fileArg, outputArg string) {
+func resizeImg(fileArg, outputArg string, width, height uint) {
 	ext := filepath.Ext(fileArg)
 
 	file, err := os.Open(fileArg)
@@ -23,7 +24,7 @@ func resizeImg(fileArg, outputArg string) {
 	}
 	file.Close()
 
-	m := resize.Resize(1000, 0, img, resize.Lanczos3)
+	m := resize.Resize(width, height, img, resize.Lanczos3)
 
 	out, err := os.Create(outputArg + ext)
 	if err != nil {
@@ -37,9 +38,15 @@ func resizeImg(fileArg, outputArg string) {
 	fmt.Println(outputArg + ext)
 }
 
+func toUint(strInt string) uint {
+	parsedUint64, _ := strconv.ParseUint(strInt, 10, 64)
+	return uint(parsedUint64)
+}
+
 func main() {
 
-	var fileArg, outputArg string
+	var fileArg, outputArg, widthArg, heightArg string
+
 	app := cli.NewApp()
 
 	app.Flags = []cli.Flag {
@@ -53,6 +60,16 @@ func main() {
 			Usage: "",
 			Destination: &outputArg,
 		},
+		cli.StringFlag{
+			Name: "width, w",
+			Usage: "",
+			Destination: &widthArg,
+		},
+		cli.StringFlag{
+			Name: "height, t",
+			Usage: "",
+			Destination: &heightArg,
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {	
@@ -61,13 +78,10 @@ func main() {
 
 	app.Run(os.Args)
 
-	if fileArg != "" && outputArg != "" {
-		resizeImg(fileArg, outputArg)
+	if fileArg != "" && outputArg != "" && widthArg != "" && heightArg != "" {
+		resizeImg(fileArg, outputArg, toUint(widthArg), toUint(heightArg))
 	}
 }
-
-
-
 
 
 
