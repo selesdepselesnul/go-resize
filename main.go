@@ -5,15 +5,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"github.com/urfave/cli"
+	"fmt"
 )
 
-func main() {
-	fileArg := os.Args[1]
+func resizeImg(fileArg, outputArg string) {
 	ext := filepath.Ext(fileArg)
 
-	fileNameNoExt := strings.Replace(fileArg, ext, "", -1)
-		
 	file, err := os.Open(fileArg)
 	if err != nil {
 		log.Fatal(err)
@@ -24,14 +22,60 @@ func main() {
 		log.Fatal(err)
 	}
 	file.Close()
-	
+
 	m := resize.Resize(1000, 0, img, resize.Lanczos3)
 
-	out, err := os.Create(fileNameNoExt + "_resized.png")
+	out, err := os.Create(outputArg + ext)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer out.Close()
 
 	png.Encode(out, m)
+
+	fmt.Println(outputArg + ext)
 }
+
+func main() {
+
+	var fileArg, outputArg string
+	app := cli.NewApp()
+
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "file, f",
+			Usage: "file to resize",
+			Destination: &fileArg,
+		},
+		cli.StringFlag{
+			Name: "output, o",
+			Usage: "",
+			Destination: &outputArg,
+		},
+	}
+
+	app.Action = func(c *cli.Context) error {	
+		return nil
+	}
+
+	app.Run(os.Args)
+
+	if fileArg != "" && outputArg != "" {
+		resizeImg(fileArg, outputArg)
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
