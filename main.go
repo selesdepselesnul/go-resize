@@ -44,27 +44,29 @@ func resizeJpg(file, output string, width, height uint) {
 }
 
 func resizeImagesInDir(sourceArg, destArg string, width, height uint) {
-	files, err := ioutil.ReadDir(sourceArg)
+	if isDir, _ := isDirectory(sourceArg); isDir {
+		files, err := ioutil.ReadDir(sourceArg)
 
-	os.Mkdir(destArg, os.FileMode(0777))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fileName := file.Name()
-		extractedExtension := filepath.Ext(fileName)
-		fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
-				
-		sourceFName := sourceArg + "/" + fileName
-		destFName := destArg + "/" + fileNameNoExt + "_resize"
-
-		if extractedExtension == ".png" {
-			resizePng(sourceFName, destFName, width, height)
-		} else if extractedExtension == ".jpg" {
-			resizeJpg(sourceFName, destFName, width, height)
+		os.Mkdir(destArg, os.FileMode(0777))
+		if err != nil {
+			log.Fatal(err)
 		}
-	}
+
+		for _, file := range files {
+			fileName := file.Name()
+			extractedExtension := filepath.Ext(fileName)
+			fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
+			
+			sourceFName := sourceArg + "/" + fileName
+			destFName := destArg + "/" + fileNameNoExt + "_resize"
+
+			if extractedExtension == ".png" {
+				resizePng(sourceFName, destFName, width, height)
+			} else if extractedExtension == ".jpg" {
+				resizeJpg(sourceFName, destFName, width, height)
+			}
+		}
+	} 
 }
 
 func resizeImagesInZip(fileArg, outputArg string, width, height uint) {
@@ -110,21 +112,22 @@ func main() {
 	app.Run(os.Args)
 
 	if fileArg != "" && outputArg != "" && widthArg != "" && heightArg != "" {
-		ext := filepath.Ext(fileArg)
 		widthUint := toUint(widthArg)
 		heightUint := toUint(heightArg)
-		
-		if ext == ".png" {
+
+		switch filepath.Ext(fileArg) {
+		case ".png":
 			resizePng(fileArg, outputArg, widthUint, heightUint)
-		} else if ext == ".jpg" {
+		case ".jpg":
 			resizeJpg(fileArg, outputArg, widthUint, heightUint)
-		} else if ext == ".zip" {
+		case ".zip":
 			resizeImagesInZip(fileArg, outputArg, widthUint, heightUint)
-		} else {
-			if isDir, _ := isDirectory(fileArg); isDir {
-				resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
-			} 
+		default:
+			resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
 		}
 	} 	
 }
+
+
+
 
