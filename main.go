@@ -11,6 +11,7 @@ import (
 	"os"
 	"archive/zip"
 	"log"
+	"strings"
 )
 
 func toUint(strInt string) uint {
@@ -164,23 +165,20 @@ func main() {
 			for _, file := range files {
 				fileName := file.Name()
 				extractedExtension := filepath.Ext(fileName)
+				fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
+				
 				sourceFName := outputArg + "/" + fileName
-				destFName := outputArg + "/" + fileName + "_resize" + extractedExtension
+				destFName := outputArg + "/" + fileNameNoExt + "_resize"
+
 				if extractedExtension == ".png" {
 					resizePng(sourceFName, destFName, widthUint, heightUint)
 				} else if extractedExtension == ".jpg" {
 					resizeJpg(sourceFName, destFName, widthUint, heightUint)
 				}
+				
 			}
 		}
 	} 	
 }
-
-
-
-
-
-
-
 
 
