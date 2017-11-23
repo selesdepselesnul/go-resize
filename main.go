@@ -19,7 +19,7 @@ func toUint(strInt string) uint {
 	return uint(parsedUint64)
 }
 
-func Unzip(src, dest string) error {
+func unzip(src, dest string) error {
     r, err := zip.OpenReader(src)
     if err != nil {
         return err
@@ -78,6 +78,10 @@ func Unzip(src, dest string) error {
     return nil
 }
 
+func isDirectory(path string) (bool, error) {
+    fileInfo, err := os.Stat(path)
+    return fileInfo.IsDir(), err
+}
 
 func resizePng(file, output string, width, height uint) {
 	ImageResizer {
@@ -107,6 +111,55 @@ func resizeJpg(file, output string, width, height uint) {
 			return jpeg.Encode(w, i, nil)
 		},
 	}.Resize()
+}
+
+
+func resizeImagesInDir(sourceArg, destArg string, width, height uint) {
+	files, err := ioutil.ReadDir(sourceArg)
+
+	os.Mkdir(destArg, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fileName := file.Name()
+		extractedExtension := filepath.Ext(fileName)
+		fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
+				
+		sourceFName := sourceArg + "/" + fileName
+		destFName := destArg + "/" + fileNameNoExt + "_resize"
+
+		if extractedExtension == ".png" {
+			resizePng(sourceFName, destFName, width, height)
+		} else if extractedExtension == ".jpg" {
+			resizeJpg(sourceFName, destFName, width, height)
+		}
+	}
+}
+
+func resizeImagesInZip(fileArg, outputArg string, width, height uint) {
+	unzip(fileArg, outputArg)
+	files, err := ioutil.ReadDir(outputArg)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fileName := file.Name()
+		extractedExtension := filepath.Ext(fileName)
+		fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
+				
+		sourceFName := outputArg + "/" + fileName
+		destFName := outputArg + "/" + fileNameNoExt + "_resize"
+
+		if extractedExtension == ".png" {
+			resizePng(sourceFName, destFName, width, height)
+		} else if extractedExtension == ".jpg" {
+			resizeJpg(sourceFName, destFName, width, height)
+		}
+	}
 }
 
 func main() {
@@ -156,29 +209,20 @@ func main() {
 		} else if ext == ".jpg" {
 			resizeJpg(fileArg, outputArg, widthUint, heightUint)
 		} else if ext == ".zip" {
-			Unzip(fileArg, outputArg)
-			files, err := ioutil.ReadDir(outputArg)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			for _, file := range files {
-				fileName := file.Name()
-				extractedExtension := filepath.Ext(fileName)
-				fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
-				
-				sourceFName := outputArg + "/" + fileName
-				destFName := outputArg + "/" + fileNameNoExt + "_resize"
-
-				if extractedExtension == ".png" {
-					resizePng(sourceFName, destFName, widthUint, heightUint)
-				} else if extractedExtension == ".jpg" {
-					resizeJpg(sourceFName, destFName, widthUint, heightUint)
-				}
-				
-			}
+			resizeImagesInZip(fileArg, outputArg, widthUint, heightUint)
+		} else {
+			if isDir, _ := isDirectory(fileArg); isDir {
+				resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
+			} 
 		}
 	} 	
 }
+
+
+
+
+
+
+
 
 
