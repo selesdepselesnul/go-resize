@@ -58,6 +58,8 @@ func main() {
 	var fileArg, outputArg, widthArg, heightArg string
 
 	app := cli.NewApp()
+	app.Name = "go-resize"
+	app.Usage = "resize any image file"
 
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
@@ -122,4 +124,7 @@ func main() {
 		}
 	}
 }
+
+
+
 
