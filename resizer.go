@@ -44,10 +44,3 @@ func (i ImageResizer) Resize() {
 	fmt.Println(i.output + ext)
 }
 
-
-
-
-
-
-
-

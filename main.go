@@ -90,17 +90,17 @@ func main() {
 		},
 		cli.StringFlag{
 			Name: "output, o",
-			Usage: "",
+			Usage: "destination",
 			Destination: &outputArg,
 		},
 		cli.StringFlag{
 			Name: "width, w",
-			Usage: "",
+			Usage: "image width",
 			Destination: &widthArg,
 		},
 		cli.StringFlag{
 			Name: "height, t",
-			Usage: "",
+			Usage: "image height",
 			Destination: &heightArg,
 		},
 	}
@@ -127,7 +127,4 @@ func main() {
 		}
 	} 	
 }
-
-
-
 
