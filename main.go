@@ -10,6 +10,7 @@ import (
 	"os"
 	"log"
 	"strings"
+	"github.com/mholt/archiver"
 )
 
 
@@ -69,9 +70,10 @@ func resizeImagesInDir(sourceArg, destArg string, width, height uint) {
 	} 
 }
 
-func resizeImagesInZip(fileArg, outputArg string, width, height uint) {
-	unzip(fileArg, outputArg)
+func resizeImagesInCompressedFile(fileArg, outputArg string, width, height uint, extractorF func (string, string) error) error {
+	err := extractorF(fileArg, outputArg)
 	resizeImagesInDir(outputArg, outputArg, width, height)
+	return err
 }
 
 func main() {
@@ -121,7 +123,23 @@ func main() {
 		case ".jpg":
 			resizeJpg(fileArg, outputArg, widthUint, heightUint)
 		case ".zip":
-			resizeImagesInZip(fileArg, outputArg, widthUint, heightUint)
+			resizeImagesInCompressedFile(
+				fileArg,
+				outputArg,
+				widthUint,
+				heightUint,
+			    func (source string, dest string) error {
+					return archiver.Zip.Open(source, dest)
+				})
+		case ".gz":
+			resizeImagesInCompressedFile(
+				fileArg,
+				outputArg,
+				widthUint,
+				heightUint,
+			    func (source string, dest string) error {
+					return archiver.TarGz.Open(source, dest)
+				})
 		default:
 			resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
 		}
