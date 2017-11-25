@@ -140,6 +140,15 @@ func main() {
 			    func (source string, dest string) error {
 					return archiver.TarGz.Open(source, dest)
 				})
+		case ".rar":
+			resizeImagesInCompressedFile(
+				fileArg,
+				outputArg,
+				widthUint,
+				heightUint,
+			    func (source string, dest string) error {
+					return archiver.Rar.Open(source, dest)
+				})
 		default:
 			resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
 		}
