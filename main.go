@@ -20,12 +20,8 @@ func resizePng(file, output string, width, height uint) {
 		output,
 		width,
 		height,
-		func (x io.Reader) (image.Image, error) {
-			return png.Decode(x)
-		},
-		func (w io.Writer, i image.Image) error {
-			return png.Encode(w, i)
-		},
+		png.Decode,
+		png.Encode,
 	}.Resize()
 }
 
@@ -35,9 +31,7 @@ func resizeJpg(file, output string, width, height uint) {
 		output,
 		width,
 		height,
-		func (x io.Reader) (image.Image, error) {
-			return jpeg.Decode(x)
-		},
+		jpeg.Decode,
 		func (w io.Writer, i image.Image) error {
 			return jpeg.Encode(w, i, nil)
 		},
