@@ -128,27 +128,21 @@ func main() {
 				outputArg,
 				widthUint,
 				heightUint,
-			    func (source string, dest string) error {
-					return archiver.Zip.Open(source, dest)
-				})
+				archiver.Zip.Open)
 		case ".gz":
 			resizeImagesInCompressedFile(
 				fileArg,
 				outputArg,
 				widthUint,
 				heightUint,
-			    func (source string, dest string) error {
-					return archiver.TarGz.Open(source, dest)
-				})
+				archiver.TarGz.Open)
 		case ".rar":
 			resizeImagesInCompressedFile(
 				fileArg,
 				outputArg,
 				widthUint,
 				heightUint,
-			    func (source string, dest string) error {
-					return archiver.Rar.Open(source, dest)
-				})
+				archiver.Rar.Open)
 		default:
 			resizeImagesInDir(fileArg, outputArg, widthUint, heightUint)
 		}
