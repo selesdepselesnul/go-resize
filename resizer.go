@@ -17,6 +17,7 @@ type ImageResizer struct {
 }
 
 func (i ImageResizer) Resize() {
+	
 	ext := filepath.Ext(i.file)
 
 	file, err := os.Open(i.file)
@@ -42,5 +43,9 @@ func (i ImageResizer) Resize() {
 	i.encoder(out, m)
 
 	fmt.Println(i.output + ext)
+
 }
+
+
+
 

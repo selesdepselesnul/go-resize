@@ -11,8 +11,8 @@ import (
 	"log"
 	"strings"
 	"github.com/mholt/archiver"
+	"sync"
 )
-
 
 func resizePng(file, output string, width, height uint) {
 	ImageResizer {
@@ -47,20 +47,31 @@ func resizeImagesInDir(sourceArg, destArg string, width, height uint) {
 			log.Fatal(err)
 		}
 
-		for _, file := range files {
-			fileName := file.Name()
-			extractedExtension := filepath.Ext(fileName)
-			fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
-			
-			sourceFName := sourceArg + "/" + fileName
-			destFName := destArg + "/" + fileNameNoExt + "_resize"
+		var wg sync.WaitGroup
+		wg.Add(len(files))
 
-			if extractedExtension == ".png" {
-				resizePng(sourceFName, destFName, width, height)
-			} else if extractedExtension == ".jpg" {
-				resizeJpg(sourceFName, destFName, width, height)
-			}
+		defer wg.Wait()
+		for _, file := range files {
+
+			fileName := file.Name()
+			
+			go func() {
+				defer wg.Done()
+						
+				extractedExtension := filepath.Ext(fileName)
+				fileNameNoExt := strings.Replace(fileName, extractedExtension, "", -1)
+				
+				sourceFName := sourceArg + "/" + fileName
+				destFName := destArg + "/" + fileNameNoExt + "_resize"
+
+				if extractedExtension == ".png" {
+					resizePng(sourceFName, destFName, width, height)
+				} else if extractedExtension == ".jpg" {
+					resizeJpg(sourceFName, destFName, width, height)
+				}
+			}()
 		}
+
 	} 
 }
 
